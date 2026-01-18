@@ -2,9 +2,9 @@ import * as cheerio from "cheerio";
 
 const DEPT_URLS = {
   cse: "https://ceng.metu.edu.tr/tr/ogretim-programi",
-  ee: "https://eee.metu.edu.tr/tr/information",
-  me: "https://me.metu.edu.tr/tr/undergraduate-program",
-  ie: "https://ie.metu.edu.tr/tr/undergraduate-program",
+  ee: "https://eee.metu.edu.tr/tr/all-courses",
+  me: "https://me.metu.edu.tr/tr/anadal",
+  ie: "https://ie.metu.edu.tr/tr/endustri-muhendisligi-lisans-ogretim-programi",
 };
 
 export async function GET(req) {
