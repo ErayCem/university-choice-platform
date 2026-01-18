@@ -4,9 +4,10 @@ export default async function DepartmentPage({ params }) {
   let data;
 
   try {
-    const res = await fetch("http://localhost:3000/api/courses", {
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `http://localhost:3000/api/courses?dept=${deptId}`,
+      { cache: "no-store" },
+    );
 
     if (!res.ok) {
       throw new Error(`API hatası: ${res.status}`);

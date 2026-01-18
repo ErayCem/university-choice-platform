@@ -1,46 +1,54 @@
-// app/api/courses/route.js
 import * as cheerio from "cheerio";
 
-export async function GET() {
-  const url = "https://ceng.metu.edu.tr/tr/ogretim-programi";
+const DEPT_URLS = {
+  cse: "https://ceng.metu.edu.tr/tr/ogretim-programi",
+  ee: "https://eee.metu.edu.tr/tr/information",
+  me: "https://me.metu.edu.tr/tr/undergraduate-program",
+  ie: "https://ie.metu.edu.tr/tr/undergraduate-program",
+};
+
+export async function GET(req) {
+  const { searchParams } = new URL(req.url);
+  const dept = searchParams.get("dept");
+
+  const url = DEPT_URLS[dept];
+
+  if (!url) {
+    return new Response(JSON.stringify({ error: "Geçersiz bölüm" }), {
+      status: 400,
+    });
+  }
 
   try {
-    // 1️⃣ Sayfayı çek
     const response = await fetch(url);
     const html = await response.text();
-
-    // 2️⃣ HTML içeriğini cheerio ile yükle
     const $ = cheerio.load(html);
 
-    // 3️⃣ Dersleri bulmak için tablo satırlarını tara
     const courses = [];
 
-    $("table tr").each((i, el) => {
-      const columns = $(el).find("td");
-      const code = $(columns[0]).text().trim();
-      const name = $(columns[1]).text().trim();
+    // GENEL TABLO OKUMA (şimdilik ortak)
+    $("table tr").each((_, el) => {
+      const tds = $(el).find("td");
+      const code = $(tds[0]).text().trim();
+      const name = $(tds[1]).text().trim();
 
-      // Kod ve isim varsa listeye ekle
-      if (code && name) {
+      if (code && name && code.length < 10) {
         courses.push(`${code} - ${name}`);
       }
     });
 
-    // 4️⃣ JSON olarak döndür
     return new Response(
       JSON.stringify({
+        department: dept,
         source: url,
         total: courses.length,
         courses,
       }),
-      {
-        headers: { "Content-Type": "application/json" },
-      }
+      { headers: { "Content-Type": "application/json" } },
     );
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message || "Veri alınamadı" }),
-      { status: 500 }
-    );
+    return new Response(JSON.stringify({ error: "Scrape başarısız" }), {
+      status: 500,
+    });
   }
 }
