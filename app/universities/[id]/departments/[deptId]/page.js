@@ -1,10 +1,7 @@
-// app/universities/[id]/departments/[deptId]/page.js
-import React from "react";
-
 export default async function DepartmentPage({ params }) {
   const { deptId } = params;
 
-  let dept = null;
+  let data;
 
   try {
     const res = await fetch("http://localhost:3000/api/courses", {
@@ -12,44 +9,69 @@ export default async function DepartmentPage({ params }) {
     });
 
     if (!res.ok) {
-      throw new Error(`API yanıtı başarısız: ${res.status}`);
+      throw new Error(`API hatası: ${res.status}`);
     }
 
-    dept = await res.json();
+    data = await res.json();
   } catch (err) {
-    console.error("Veri çekilemedi:", err);
     return (
-      <div className="p-10 text-red-600">
-        ❌ Veri çekilemedi veya JSON geçersiz. <br />
-        Hata: {err.message}
+      <div className="min-h-screen flex items-center justify-center bg-black text-red-400">
+        ❌ Veri çekilemedi: {err.message}
       </div>
     );
   }
 
-  if (!dept || dept.error) {
-    return <div className="p-10">Bölüm bulunamadı.</div>;
-  }
+  const courses = data.courses.filter(
+    (c) => !c.toLowerCase().includes("dersin kodu")
+  );
 
   return (
-    <div className="p-10">
-      <h1 className="text-3xl font-bold mb-4">{dept.name}</h1>
-      <p className="text-gray-700 mb-6">{dept.description}</p>
+    <div className="min-h-screen bg-black text-white p-10">
+      <h1 className="text-4xl font-bold text-orange-400 mb-6">
+        🎓 {deptId.toUpperCase()} Müfredatı
+      </h1>
 
-      <h2 className="text-2xl font-semibold mb-2">📘 Dersler</h2>
-      <ul className="list-disc ml-6 mb-6">
-        {dept.courses?.map((c, i) => (
-          <li key={i}>{c}</li>
-        ))}
-      </ul>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-700">
+          <thead className="bg-gray-900">
+            <tr>
+              <th className="border border-gray-700 px-4 py-2 text-left">
+                Ders Kodu
+              </th>
+              <th className="border border-gray-700 px-4 py-2 text-left">
+                Ders Adı
+              </th>
+            </tr>
+          </thead>
 
-      <h2 className="text-2xl font-semibold mb-2">👨‍🏫 Akademik Kadro</h2>
-      <ul className="list-disc ml-6">
-        {dept.staff?.map((s, i) => (
-          <li key={i}>
-            {s.name} – {s.title}
-          </li>
-        ))}
-      </ul>
+          <tbody>
+            {courses.map((course, index) => {
+              const [code, ...nameParts] = course.split(" - ");
+              const name = nameParts.join(" - ");
+
+              return (
+                <tr key={index} className="hover:bg-gray-800">
+                  <td className="border border-gray-700 px-4 py-2 text-orange-400 font-semibold">
+                    {code}
+                  </td>
+                  <td className="border border-gray-700 px-4 py-2">{name}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="text-gray-500 text-sm mt-6">
+        Kaynak:{" "}
+        <a
+          href={data.source}
+          target="_blank"
+          className="underline text-orange-400"
+        >
+          {data.source}
+        </a>
+      </p>
     </div>
   );
 }
