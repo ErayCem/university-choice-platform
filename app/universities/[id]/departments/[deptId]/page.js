@@ -22,7 +22,7 @@ export default async function DepartmentPage({ params }) {
   }
 
   const courses = data.courses.filter(
-    (c) => !c.toLowerCase().includes("dersin kodu")
+    (c) => !c.toLowerCase().includes("dersin kodu"),
   );
 
   return (
