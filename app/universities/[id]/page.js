@@ -1,4 +1,6 @@
 // app/universities/[id]/page.js
+import React from "react";
+
 import { universities } from "../../page";
 import Link from "next/link";
 

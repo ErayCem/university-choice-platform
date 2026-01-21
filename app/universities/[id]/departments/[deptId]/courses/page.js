@@ -1,4 +1,5 @@
 // app/universities/[id]/departments/[deptId]/courses/page.js
+import React from "react";
 
 export default async function CoursesPage() {
   // API'den scraping verisini çek
