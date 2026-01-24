@@ -5,19 +5,19 @@ import Link from "next/link";
 
 export const universities = [
   {
-    id: "1",
+    id: "bogazici",
     name: "Boğaziçi Üniversitesi",
     image: "/images/bogazici.jpg",
     description: "Türkiye'nin önde gelen üniversitelerinden biri.",
   },
   {
-    id: "2",
+    id: "odtu",
     name: "Orta Doğu Teknik Üniversitesi",
     image: "/images/odtu.jpg",
     description: "Mühendislik ve fen bilimleri alanında ünlü bir üniversite.",
   },
   {
-    id: "3",
+    id: "itu",
     name: "İstanbul Teknik Üniversitesi",
     image: "/images/itu.jpg",
     description: "Köklü bir teknik üniversite.",
