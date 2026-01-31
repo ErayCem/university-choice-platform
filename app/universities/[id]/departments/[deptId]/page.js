@@ -1,78 +1,29 @@
-export default async function DepartmentPage({ params }) {
-  const { deptId } = params;
+import Link from "next/link";
 
-  let data;
-
-  try {
-    const res = await fetch(
-      `http://localhost:3000/api/courses?dept=${deptId}`,
-      { cache: "no-store" },
-    );
-
-    if (!res.ok) {
-      throw new Error(`API hatası: ${res.status}`);
-    }
-
-    data = await res.json();
-  } catch (err) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-red-400">
-        ❌ Veri çekilemedi: {err.message}
-      </div>
-    );
-  }
-
-  const courses = data.courses.filter(
-    (c) => !c.toLowerCase().includes("dersin kodu"),
-  );
+export default function DepartmentPage({ params }) {
+  const { id, deptId } = params;
 
   return (
-    <div className="min-h-screen bg-black text-white p-10">
-      <h1 className="text-4xl font-bold text-orange-400 mb-6">
-        🎓 {deptId.toUpperCase()} Müfredatı
+    <div className="min-h-screen p-10">
+      <h1 className="text-4xl font-bold mb-10 text-center">
+        {deptId.toUpperCase()} Bölümü
       </h1>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border border-gray-700">
-          <thead className="bg-gray-900">
-            <tr>
-              <th className="border border-gray-700 px-4 py-2 text-left">
-                Ders Kodu
-              </th>
-              <th className="border border-gray-700 px-4 py-2 text-left">
-                Ders Adı
-              </th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {courses.map((course, index) => {
-              const [code, ...nameParts] = course.split(" - ");
-              const name = nameParts.join(" - ");
-
-              return (
-                <tr key={index} className="hover:bg-gray-800">
-                  <td className="border border-gray-700 px-4 py-2 text-orange-400 font-semibold">
-                    {code}
-                  </td>
-                  <td className="border border-gray-700 px-4 py-2">{name}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <p className="text-gray-500 text-sm mt-6">
-        Kaynak:{" "}
-        <a
-          href={data.source}
-          target="_blank"
-          className="underline text-orange-400"
+      <div className="grid grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <Link
+          href={`/universities/${id}/departments/${deptId}/courses`}
+          className="bg-gradient-to-r from-orange-400 to-gray-500 text-white py-6 rounded-xl text-center font-semibold"
         >
-          {data.source}
-        </a>
-      </p>
+          📘 Ders Müfredatı
+        </Link>
+
+        <Link
+          href={`/universities/${id}/departments/${deptId}/staff`}
+          className="bg-gradient-to-r from-orange-400 to-gray-500 text-white py-6 rounded-xl text-center font-semibold"
+        >
+          👨‍🏫 Akademik Kadro
+        </Link>
+      </div>
     </div>
   );
 }
