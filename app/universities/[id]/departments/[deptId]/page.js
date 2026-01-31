@@ -23,6 +23,13 @@ export default function DepartmentPage({ params }) {
         >
           👨‍🏫 Akademik Kadro
         </Link>
+
+        <Link
+          href={`/universities/${id}/departments/${deptId}/location`}
+          className="bg-gradient-to-r from-orange-400 to-gray-500 text-white py-6 rounded-xl text-center font-semibold"
+        >
+          📍 Fakülte Konumu
+        </Link>
       </div>
     </div>
   );
