@@ -152,6 +152,48 @@ function parseStaff($, university, dept, url) {
 }
 
 /* ===========================
+   🏛 BOĞAZİÇİ STAFF
+=========================== */
+function parseBogaziciStaff($, university, dept, url) {
+  const staff = [];
+
+  // 1️⃣ Kart yapısı
+  $(".card-body").each((_, el) => {
+    const name = $(el).find("h5").text().trim();
+    const title = $(el).find("p.mb-1").text().trim();
+
+    if (name) staff.push({ name, title });
+  });
+
+  // 2️⃣ Eğer boşsa tablo dene
+  if (staff.length === 0) {
+    $("table tr").each((_, el) => {
+      const name = $(el).find("td").first().text().trim();
+      if (name) staff.push({ name, title: "Akademisyen" });
+    });
+  }
+
+  // 3️⃣ Eğer hâlâ boşsa liste dene
+  if (staff.length === 0) {
+    $("ul li").each((_, el) => {
+      const name = $(el).text().trim();
+      if (name.length > 5) {
+        staff.push({ name, title: "Akademisyen" });
+      }
+    });
+  }
+
+  return Response.json({
+    type: "staff",
+    university,
+    department: dept,
+    source: url,
+    total: staff.length,
+    staff,
+  });
+}
+
+/* ===========================
    🏛 ODTÜ STAFF
 =========================== */
 function parseOdtüStaff($, university, dept, url) {
@@ -190,29 +232,6 @@ function parseItuStaff($, university, dept, url) {
   const staff = [];
 
   $(".personel-adi, h3, h4").each((_, el) => {
-    const name = $(el).text().trim();
-    if (name.length > 5) {
-      staff.push({ name, title: "Akademisyen" });
-    }
-  });
-
-  return Response.json({
-    type: "staff",
-    university,
-    department: dept,
-    source: url,
-    total: staff.length,
-    staff,
-  });
-}
-
-/* ===========================
-   🏛 BOĞAZİÇİ STAFF
-=========================== */
-function parseBogaziciStaff($, university, dept, url) {
-  const staff = [];
-
-  $(".person h3 a").each((_, el) => {
     const name = $(el).text().trim();
     if (name.length > 5) {
       staff.push({ name, title: "Akademisyen" });
