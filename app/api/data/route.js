@@ -28,10 +28,23 @@ const UNIVERSITY_DEPT_URLS = {
    👨‍🏫 STAFF URLS
 =========================== */
 const UNIVERSITY_STAFF_URLS = {
+  bogazici: {
+    cse: "https://cmpe.bogazici.edu.tr/tr/people/faculty/",
+    ee: "https://ee.bogazici.edu.tr/tr/pages/ogretim-uyeleri/1451",
+    me: "https://me.bogazici.edu.tr/tr/rehber",
+    ie: "https://ie.bogazici.edu.tr/tr/faculty",
+  },
   odtu: {
     cse: "https://ceng.metu.edu.tr/index.php/tr/ogretim-uyeleri",
-    ee: "https://eee.metu.edu.tr/academic-staff",
-    me: "https://me.metu.edu.tr/tr/ogretim-uyeleri",
+    ee: "https://eee.metu.edu.tr/tr/people_faculty",
+    me: "https://me.metu.edu.tr/tr/personel/mevcut-ogretim-uyeleri",
+    ie: "https://ie.metu.edu.tr/tr/personel",
+  },
+  itu: {
+    cse: "https://bm.itu.edu.tr/personel",
+    ee: "https://elk.itu.edu.tr/personel/akademik-personel",
+    me: "https://mkn.itu.edu.tr/personel/akademik-kadro-test",
+    ie: "https://end.itu.edu.tr/personel/akademik-personel",
   },
 };
 
@@ -65,71 +78,153 @@ export async function GET(req) {
   }
 
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+      },
+    });
+
     const html = await res.text();
     const $ = cheerio.load(html);
 
-    /* ===========================
-       🎓 COURSES
-    ============================ */
     if (type === "courses") {
-      const courses = [];
-
-      $("table tr").each((_, el) => {
-        const tds = $(el).find("td");
-        const code = $(tds[0]).text().trim();
-        const name = $(tds[1]).text().trim();
-
-        if (code && name && code.length < 10) {
-          courses.push({ code, name });
-        }
-      });
-
-      return Response.json({
-        type,
-        university,
-        department: dept,
-        source: url,
-        total: courses.length,
-        courses,
-      });
-    }
-    console.log(html.length);
-    /* ===========================
-       👨‍🏫 STAFF – ODTÜ (GENEL)
-    ============================ */
-    if (type === "staff" && university === "odtu" && dept === "cse") {
-      const staff = [];
-
-      $(".views-field-title h5").each((_, el) => {
-        const name = $(el).text().trim();
-
-        if (name && name.length > 5) {
-          staff.push({
-            name,
-            title: "Öğretim Üyesi",
-          });
-        }
-      });
-
-      console.log("Bulunan kişi sayısı:", staff.length);
-
-      return Response.json({
-        type,
-        university,
-        department: dept,
-        total: staff.length,
-        staff,
-      });
+      return parseCourses($, university, dept, url);
     }
 
-    return Response.json({
-      error: "Bu üniversite için staff scrape desteklenmiyor",
-    });
+    if (type === "staff") {
+      return parseStaff($, university, dept, url);
+    }
+
+    return Response.json({ error: "Geçersiz type" });
   } catch (err) {
     return Response.json(
       { error: "Scrape başarısız", detail: err.message },
       { status: 500 },
     );
   }
+}
+
+/* ===========================
+   🎓 COURSES PARSER
+=========================== */
+function parseCourses($, university, dept, url) {
+  const courses = [];
+
+  $("table tr").each((_, el) => {
+    const tds = $(el).find("td");
+    const code = $(tds[0]).text().trim();
+    const name = $(tds[1]).text().trim();
+
+    if (code && name && code.length < 12) {
+      courses.push({ code, name });
+    }
+  });
+
+  return Response.json({
+    type: "courses",
+    university,
+    department: dept,
+    source: url,
+    total: courses.length,
+    courses,
+  });
+}
+
+/* ===========================
+   👨‍🏫 STAFF DISPATCHER
+=========================== */
+function parseStaff($, university, dept, url) {
+  if (university === "odtu") {
+    return parseOdtüStaff($, university, dept, url);
+  }
+
+  if (university === "itu") {
+    return parseItuStaff($, university, dept, url);
+  }
+
+  if (university === "bogazici") {
+    return parseBogaziciStaff($, university, dept, url);
+  }
+
+  return Response.json({
+    error: "Staff parser tanımlı değil",
+  });
+}
+
+/* ===========================
+   🏛 ODTÜ STAFF
+=========================== */
+function parseOdtüStaff($, university, dept, url) {
+  const staff = [];
+
+  $(".views-field-title a").each((_, el) => {
+    const name = $(el).text().trim();
+    if (name.length > 5) {
+      staff.push({ name, title: "Akademisyen" });
+    }
+  });
+
+  if (staff.length === 0) {
+    $("table ul li a").each((_, el) => {
+      const name = $(el).text().trim();
+      if (name.length > 3) {
+        staff.push({ name, title: "Akademisyen" });
+      }
+    });
+  }
+
+  return Response.json({
+    type: "staff",
+    university,
+    department: dept,
+    source: url,
+    total: staff.length,
+    staff,
+  });
+}
+
+/* ===========================
+   🏛 İTÜ STAFF
+=========================== */
+function parseItuStaff($, university, dept, url) {
+  const staff = [];
+
+  $(".personel-adi, h3, h4").each((_, el) => {
+    const name = $(el).text().trim();
+    if (name.length > 5) {
+      staff.push({ name, title: "Akademisyen" });
+    }
+  });
+
+  return Response.json({
+    type: "staff",
+    university,
+    department: dept,
+    source: url,
+    total: staff.length,
+    staff,
+  });
+}
+
+/* ===========================
+   🏛 BOĞAZİÇİ STAFF
+=========================== */
+function parseBogaziciStaff($, university, dept, url) {
+  const staff = [];
+
+  $(".person h3 a").each((_, el) => {
+    const name = $(el).text().trim();
+    if (name.length > 5) {
+      staff.push({ name, title: "Akademisyen" });
+    }
+  });
+
+  return Response.json({
+    type: "staff",
+    university,
+    department: dept,
+    source: url,
+    total: staff.length,
+    staff,
+  });
 }
