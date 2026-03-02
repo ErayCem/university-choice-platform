@@ -230,24 +230,38 @@ function parseBogaziciStaff($, university, dept, url) {
     staff,
   });
 }
-
-/* ===========================
-   🏛 ODTÜ STAFF
-=========================== */
 function parseOdtüStaff($, university, dept, url) {
   const staff = [];
 
+  /* ===========================
+     1️⃣ Genel ODTÜ yapısı (a içinde)
+  =========================== */
   $(".views-field-title a").each((_, el) => {
     const name = $(el).text().trim();
-    if (name.length > 5) {
+    if (isRealName(name)) {
       staff.push({ name, title: "Akademisyen" });
     }
   });
 
+  /* ===========================
+     2️⃣ CSE için h5 yapısı
+  =========================== */
+  if (staff.length === 0) {
+    $(".views-field-title h5").each((_, el) => {
+      const name = $(el).text().trim();
+      if (isRealName(name)) {
+        staff.push({ name, title: "Akademisyen" });
+      }
+    });
+  }
+
+  /* ===========================
+     3️⃣ IE tablo yapısı
+  =========================== */
   if (staff.length === 0) {
     $("table ul li a").each((_, el) => {
       const name = $(el).text().trim();
-      if (name.length > 3) {
+      if (isRealName(name)) {
         staff.push({ name, title: "Akademisyen" });
       }
     });
@@ -262,7 +276,6 @@ function parseOdtüStaff($, university, dept, url) {
     staff,
   });
 }
-
 /* ===========================
    🏛 İTÜ STAFF
 =========================== */
