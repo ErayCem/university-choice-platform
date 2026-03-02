@@ -157,27 +157,65 @@ function parseStaff($, university, dept, url) {
 function parseBogaziciStaff($, university, dept, url) {
   const staff = [];
 
-  // 1️⃣ Kart yapısı
+  /* ===========================
+     1️⃣ CSE – Kart Yapısı (.card-body)
+  =========================== */
   $(".card-body").each((_, el) => {
     const name = $(el).find("h5").text().trim();
-    const title = $(el).find("p.mb-1").text().trim();
+    const title = $(el).find("p").first().text().trim();
 
-    if (name) staff.push({ name, title });
+    if (isRealName(name)) {
+      staff.push({ name, title: title || "Akademisyen" });
+    }
   });
 
-  // 2️⃣ Eğer boşsa tablo dene
+  /* ===========================
+     2️⃣ EE – title-name yapısı
+  =========================== */
   if (staff.length === 0) {
-    $("table tr").each((_, el) => {
-      const name = $(el).find("td").first().text().trim();
-      if (name) staff.push({ name, title: "Akademisyen" });
+    $(".title-name").each((_, el) => {
+      const name = $(el).text().trim();
+
+      if (isRealName(name)) {
+        staff.push({ name, title: "Akademisyen" });
+      }
     });
   }
 
-  // 3️⃣ Eğer hâlâ boşsa liste dene
+  /* ===========================
+     3️⃣ ME – views-field-title a
+  =========================== */
   if (staff.length === 0) {
-    $("ul li").each((_, el) => {
+    $(".views-field-title a").each((_, el) => {
       const name = $(el).text().trim();
-      if (name.length > 5) {
+
+      if (isRealName(name)) {
+        staff.push({ name, title: "Akademisyen" });
+      }
+    });
+  }
+
+  /* ===========================
+     4️⃣ IE – faculty_name a
+  =========================== */
+  if (staff.length === 0) {
+    $(".faculty_name a").each((_, el) => {
+      const name = $(el).text().trim();
+
+      if (isRealName(name)) {
+        staff.push({ name, title: "Akademisyen" });
+      }
+    });
+  }
+
+  /* ===========================
+     5️⃣ En Son Generic Güvenlik
+  =========================== */
+  if (staff.length === 0) {
+    $("a").each((_, el) => {
+      const name = $(el).text().trim();
+
+      if (isRealName(name)) {
         staff.push({ name, title: "Akademisyen" });
       }
     });
@@ -246,4 +284,30 @@ function parseItuStaff($, university, dept, url) {
     total: staff.length,
     staff,
   });
+}
+function isRealName(text) {
+  if (!text) return false;
+  if (text.length < 6) return false;
+
+  // Menü ve alakasız kelimeleri engelle
+  const banned = [
+    "English",
+    "İletişim",
+    "Ara",
+    "Anasayfa",
+    "Hakkımızda",
+    "Detaylı",
+    "Çalışanlar",
+    "Araştırma",
+  ];
+
+  for (let word of banned) {
+    if (text.includes(word)) return false;
+  }
+
+  // En az iki kelime olmalı
+  if (!text.includes(" ")) return false;
+
+  // Büyük harfle başlamalı
+  return /^[A-ZÇĞİÖŞÜ]/.test(text);
 }
