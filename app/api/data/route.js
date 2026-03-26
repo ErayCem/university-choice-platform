@@ -35,7 +35,7 @@ const UNIVERSITY_STAFF_URLS = {
     ie: "https://ie.bogazici.edu.tr/tr/faculty",
   },
   odtu: {
-    cse: "https://ceng.metu.edu.tr/index.php/tr/ogretim-uyeleri",
+    cse: "https://ceng.metu.edu.tr/tr/ogretim-uyeleri-ve-gorevlileri",
     ee: "https://eee.metu.edu.tr/tr/people_faculty",
     me: "https://me.metu.edu.tr/tr/personel/mevcut-ogretim-uyeleri",
     ie: "https://ie.metu.edu.tr/tr/personel",
