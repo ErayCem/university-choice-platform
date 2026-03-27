@@ -1,5 +1,5 @@
 import * as cheerio from "cheerio";
-
+import puppeteer from "puppeteer";
 /* ===========================
    🎓 COURSE URLS
 =========================== */
@@ -280,7 +280,7 @@ function parseOdtüStaff($, university, dept, url) {
    🏛 İTÜ STAFF
 =========================== */
 async function parseItuStaff($, university, dept, url) {
-  // 👉 SADECE İTÜ CSE
+  // 👉 CSE
   if (dept === "cse") {
     const res = await fetch(
       "https://bm.itu.edu.tr/docs/librariesprovider92/assets/static_html_bm/staff__all_staff_tr.html",
@@ -310,15 +310,57 @@ async function parseItuStaff($, university, dept, url) {
     });
   }
 
-  // 👉 diğer İTÜ bölümleri
+  // 👉 EE (PUPPETEER)
+  if (dept === "ee") {
+    const browser = await puppeteer.launch({
+      headless: "new",
+    });
+
+    const page = await browser.newPage();
+
+    await page.goto(url, {
+      waitUntil: "networkidle2",
+    });
+
+    const staff = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll(".person")).map((el) => ({
+        name: el.querySelector(".person__name")?.innerText.trim(),
+        title: el.querySelector(".person__title")?.innerText.trim(),
+      }));
+    });
+
+    await browser.close();
+
+    return Response.json({
+      type: "staff",
+      university,
+      department: dept,
+      source: url,
+      total: staff.length,
+      staff,
+    });
+  }
+
+  // 👉 diğer İTÜ bölümleri (makine vs)
   const staff = [];
 
-  $(".personel-adi, h3, h4").each((_, el) => {
+  $(".person__name").each((_, el) => {
     const name = $(el).text().trim();
+    const title = $(el).prev(".person__title").text().trim() || "Akademisyen";
+
     if (name.length > 5) {
-      staff.push({ name, title: "Akademisyen" });
+      staff.push({ name, title });
     }
   });
+
+  if (staff.length === 0) {
+    $(".personel-adi, h3, h4").each((_, el) => {
+      const name = $(el).text().trim();
+      if (name.length > 5) {
+        staff.push({ name, title: "Akademisyen" });
+      }
+    });
+  }
 
   return Response.json({
     type: "staff",

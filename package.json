@@ -11,6 +11,7 @@
   "dependencies": {
     "cheerio": "^1.1.2",
     "next": "14.2.15",
+    "puppeteer": "^24.40.0",
     "react": "^18",
     "react-dom": "^18"
   },
