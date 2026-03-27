@@ -92,7 +92,7 @@ export async function GET(req) {
     }
 
     if (type === "staff") {
-      return parseStaff($, university, dept, url);
+      return await parseStaff($, university, dept, url);
     }
 
     return Response.json({ error: "Geçersiz type" });
@@ -133,13 +133,13 @@ function parseCourses($, university, dept, url) {
 /* ===========================
    👨‍🏫 STAFF DISPATCHER
 =========================== */
-function parseStaff($, university, dept, url) {
+async function parseStaff($, university, dept, url) {
   if (university === "odtu") {
     return parseOdtüStaff($, university, dept, url);
   }
 
   if (university === "itu") {
-    return parseItuStaff($, university, dept, url);
+    return await parseItuStaff($, university, dept, url);
   }
 
   if (university === "bogazici") {
@@ -279,7 +279,38 @@ function parseOdtüStaff($, university, dept, url) {
 /* ===========================
    🏛 İTÜ STAFF
 =========================== */
-function parseItuStaff($, university, dept, url) {
+async function parseItuStaff($, university, dept, url) {
+  // 👉 SADECE İTÜ CSE
+  if (dept === "cse") {
+    const res = await fetch(
+      "https://bm.itu.edu.tr/docs/librariesprovider92/assets/static_html_bm/staff__all_staff_tr.html",
+    );
+
+    const html = await res.text();
+    const $$ = cheerio.load(html);
+
+    const staff = [];
+
+    $$(".name").each((_, el) => {
+      const name = $$(el).text().trim();
+      const title = $$(el).prev(".title").text().trim() || "Akademisyen";
+
+      if (name.length > 5) {
+        staff.push({ name, title });
+      }
+    });
+
+    return Response.json({
+      type: "staff",
+      university,
+      department: dept,
+      source: "itu-cse-static",
+      total: staff.length,
+      staff,
+    });
+  }
+
+  // 👉 diğer İTÜ bölümleri
   const staff = [];
 
   $(".personel-adi, h3, h4").each((_, el) => {
