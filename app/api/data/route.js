@@ -341,6 +341,37 @@ async function parseItuStaff($, university, dept, url) {
     });
   }
 
+  // 👉 EE (PUPPETEER)
+  if (dept === "ie") {
+    const browser = await puppeteer.launch({
+      headless: "new",
+    });
+
+    const page = await browser.newPage();
+
+    await page.goto(url, {
+      waitUntil: "networkidle2",
+    });
+
+    const staff = await page.evaluate(() => {
+      return Array.from(document.querySelectorAll(".person")).map((el) => ({
+        name: el.querySelector(".person__name")?.innerText.trim(),
+        title: el.querySelector(".person__title")?.innerText.trim(),
+      }));
+    });
+
+    await browser.close();
+
+    return Response.json({
+      type: "staff",
+      university,
+      department: dept,
+      source: url,
+      total: staff.length,
+      staff,
+    });
+  }
+
   // 👉 diğer İTÜ bölümleri (makine vs)
   const staff = [];
 
