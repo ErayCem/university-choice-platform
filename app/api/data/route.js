@@ -1,5 +1,48 @@
 import * as cheerio from "cheerio";
 import puppeteer from "puppeteer";
+
+const UNIVERSITY_LOCATIONS = {
+  bogazici: [
+    {
+      campus: "Güney Kampüs",
+      location: "İstanbul / Bebek",
+      faculties: [
+        "Bilgisayar Mühendisliği",
+        "Elektrik-Elektronik Mühendisliği",
+      ],
+    },
+    {
+      campus: "Kuzey Kampüs",
+      location: "İstanbul / Sarıyer",
+      faculties: ["Endüstri Mühendisliği", "Makine Mühendisliği"],
+    },
+  ],
+
+  itu: [
+    {
+      campus: "Ayazağa Kampüsü",
+      location: "İstanbul / Maslak",
+      faculties: [
+        "Bilgisayar Mühendisliği",
+        "Elektrik Mühendisliği",
+        "Endüstri Mühendisliği",
+      ],
+    },
+  ],
+
+  odtu: [
+    {
+      campus: "ODTÜ Ana Kampüs",
+      location: "Ankara / Çankaya",
+      faculties: [
+        "Bilgisayar Mühendisliği",
+        "Elektrik-Elektronik Mühendisliği",
+        "Makine Mühendisliği",
+        "Endüstri Mühendisliği",
+      ],
+    },
+  ],
+};
 /* ===========================
    🎓 COURSE URLS
 =========================== */
@@ -57,6 +100,19 @@ export async function GET(req) {
   const type = searchParams.get("type") || "courses";
   const university = searchParams.get("university");
   const dept = searchParams.get("dept");
+
+  // 🔥 LOCATION API
+  if (type === "locations") {
+    if (!university) {
+      return Response.json({ error: "university zorunlu" }, { status: 400 });
+    }
+
+    return Response.json({
+      type: "locations",
+      university,
+      data: UNIVERSITY_LOCATIONS[university] || [],
+    });
+  }
 
   if (!university || !dept) {
     return Response.json(
