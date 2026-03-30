@@ -5,6 +5,7 @@ export default async function LocationsPage({ params }) {
 
   const res = await fetch(
     `http://localhost:3000/api/data?type=locations&university=${params.id}`,
+    { cache: "no-store" },
   );
 
   const data = await res.json();

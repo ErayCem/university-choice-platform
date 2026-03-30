@@ -1,5 +1,6 @@
 import Link from "next/link";
-
+/* eslint-disable react/prop-types */
+import React from "react";
 export default function DepartmentsPage({ params }) {
   const { id } = params; // 🔑 BUNU EKLEMEN GEREKİYOR
 
