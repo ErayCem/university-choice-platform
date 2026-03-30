@@ -113,6 +113,16 @@ export async function GET(req) {
       data: UNIVERSITY_LOCATIONS[university] || [],
     });
   }
+  if (type === "rankings") {
+    const data = await parseUniversityRankings(university);
+
+    return Response.json({
+      type: "rankings",
+      university,
+      total: data.length,
+      data,
+    });
+  }
 
   if (!university || !dept) {
     return Response.json(
@@ -483,4 +493,44 @@ function isRealName(text) {
 
   // Büyük harfle başlamalı
   return /^[A-ZÇĞİÖŞÜ]/.test(text);
+}
+/* ===========================
+   📊 RANKINGS PARSER
+=========================== */
+async function parseUniversityRankings(university) {
+  let url = "";
+
+  // 👉 buraya üniversite linklerini ekleyeceksin
+  if (university === "bogazici") {
+    url = "https://tanitim.bogazici.edu.tr/istatistikler";
+  }
+
+  if (university === "odtu") {
+    url = "https://adayogrenci.metu.edu.tr/programlar"; // örnek, değiştirirsin
+  }
+
+  if (!url) return [];
+
+  const res = await fetch(url);
+  const html = await res.text();
+  const $ = cheerio.load(html);
+
+  const rankings = [];
+
+  // 🔥 BOĞAZİÇİ TABLE PARSER
+  $("table tbody tr").each((_, el) => {
+    const dept = $(el).find("td").eq(0).text().trim();
+    const tavanRank = $(el).find("td").eq(4).text().trim();
+    const tabanRank = $(el).find("td").eq(6).text().trim();
+
+    if (dept && tabanRank) {
+      rankings.push({
+        department: dept,
+        tavanRank,
+        tabanRank,
+      });
+    }
+  });
+
+  return rankings;
 }
