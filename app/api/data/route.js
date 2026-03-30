@@ -98,7 +98,7 @@ export async function GET(req) {
   const { searchParams } = new URL(req.url);
 
   const type = searchParams.get("type") || "courses";
-  const university = searchParams.get("university");
+  const university = searchParams.get("university")?.trim().toLowerCase();
   const dept = searchParams.get("dept");
 
   // 🔥 LOCATION API

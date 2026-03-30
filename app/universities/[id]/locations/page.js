@@ -1,3 +1,5 @@
+/* eslint-disable react/prop-types */
+import React from "react";
 export default async function LocationsPage({ params }) {
   console.log("PARAMS:", params.id);
 
