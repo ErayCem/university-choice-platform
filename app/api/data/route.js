@@ -506,7 +506,11 @@ async function parseUniversityRankings(university) {
   }
 
   if (university === "odtu") {
-    url = "https://adayogrenci.metu.edu.tr/programlar"; // örnek, değiştirirsin
+    url = "https://adayogrenci.metu.edu.tr/ankara/puan-ve-kontenjanlar"; // örnek, değiştirirsin
+  }
+  if (university === "itu") {
+    url =
+      "https://boenstitu.com/bolum/istanbul-teknik-universitesi-itu-taban-puanlari-ve-basari-siralamalari"; // örnek, değiştirirsin
   }
 
   if (!url) return [];
@@ -531,6 +535,25 @@ async function parseUniversityRankings(university) {
       });
     }
   });
+  if (university === "itu") {
+    $("table tr").each((_, el) => {
+      const cols = $(el).find("td");
+
+      if (cols.length < 3) return;
+
+      const dept = $(cols[0]).text().trim();
+      const rank = $(cols[2]).text().trim();
+
+      // 🔥 HEADER ve saçma satırları filtrele
+      if (dept && rank && dept !== "Bölüm" && !rank.includes("Sıralaması")) {
+        rankings.push({
+          department: dept,
+          tabanRank: rank,
+          tavanRank: "-",
+        });
+      }
+    });
+  }
 
   return rankings;
 }
