@@ -1,3 +1,6 @@
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/bc7ae67e-0c99-4c3e-8d9e-97ebedf0e688" />
+
+
 # University Choice Platform
 
 A web platform designed to help users explore universities, discover academic programs, and compare university information.
