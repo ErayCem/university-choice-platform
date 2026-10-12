@@ -25,7 +25,7 @@ export const universities = [
   {
     id: "4",
     name: "Hacettepe Üniversitesi",
-    image: "https://example.com/hacettepe.jpg",
+    image: "/images/hacettepe.jpg",
     description: "Sağlık ve sosyal bilimler alanında güçlü bir üniversite.",
   },
   {
