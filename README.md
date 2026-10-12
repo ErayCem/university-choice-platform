@@ -1,4 +1,5 @@
-<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/bc7ae67e-0c99-4c3e-8d9e-97ebedf0e688" />
+<img width="1910" height="876" alt="image" src="https://github.com/user-attachments/assets/22290b2a-f371-47c6-929d-9297dc955b37" />
+
 
 
 # University Choice Platform
